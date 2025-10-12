@@ -1,6 +1,6 @@
 ![DirectX Logo](https://raw.githubusercontent.com/wiki/Microsoft/DirectXTK12/X_jpg.jpg)
 
-# DirectX Tool Kit for DirectX 12
+# DirectX Tool Kit for DirectX 12 - Alex Houghton Slim Graphics Fork
 
 http://go.microsoft.com/fwlink/?LinkID=615561
 
