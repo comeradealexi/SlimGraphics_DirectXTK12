@@ -21,10 +21,16 @@
 #include "DDS.h"
 #include "DirectXHelpers.h"
 #include "LoaderHelpers.h"
+#ifndef SE_SLIM_ENGINE
 #include "ResourceUploadBatch.h"
-
+#endif
 using namespace DirectX;
 using namespace DirectX::LoaderHelpers;
+
+namespace se
+{
+    DDSAllocatorOverrideFunction g_ddsAllocatorOverrideFunction = nullptr;
+}
 
 static_assert(static_cast<int>(DDS_DIMENSION_TEXTURE1D) == static_cast<int>(D3D12_RESOURCE_DIMENSION_TEXTURE1D), "dds mismatch");
 static_assert(static_cast<int>(DDS_DIMENSION_TEXTURE2D) == static_cast<int>(D3D12_RESOURCE_DIMENSION_TEXTURE2D), "dds mismatch");
@@ -255,15 +261,23 @@ namespace
         desc.SampleDesc.Quality = 0;
         desc.Dimension = resDim;
 
-        const CD3DX12_HEAP_PROPERTIES defaultHeapProperties(D3D12_HEAP_TYPE_DEFAULT);
+        if (se::g_ddsAllocatorOverrideFunction)
+        {
+            hr = se::g_ddsAllocatorOverrideFunction(desc, texture);
+        }
+        else
+        {
+            const CD3DX12_HEAP_PROPERTIES defaultHeapProperties(D3D12_HEAP_TYPE_DEFAULT);
 
-        hr = device->CreateCommittedResource(
-            &defaultHeapProperties,
-            D3D12_HEAP_FLAG_NONE,
-            &desc,
-            c_initialCopyTargetState,
-            nullptr,
-            IID_GRAPHICS_PPV_ARGS(texture));
+            hr = device->CreateCommittedResource(
+                &defaultHeapProperties,
+                D3D12_HEAP_FLAG_NONE,
+                &desc,
+                c_initialCopyTargetState,
+                nullptr,
+                IID_GRAPHICS_PPV_ARGS(texture));
+        }
+
         if (SUCCEEDED(hr))
         {
             assert(texture != nullptr && *texture != nullptr);
@@ -806,6 +820,7 @@ HRESULT DirectX::LoadDDSTextureFromFileEx(
     return hr;
 }
 
+#ifndef SE_SLIM_ENGINE
 //--------------------------------------------------------------------------------------
 _Use_decl_annotations_
 HRESULT DirectX::CreateDDSTextureFromMemory(
@@ -1126,3 +1141,4 @@ namespace DirectX
 }
 
 #endif // !_NATIVE_WCHAR_T_DEFINED
+#endif

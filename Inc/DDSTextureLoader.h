@@ -30,6 +30,7 @@
 #include <cstdint>
 #include <memory>
 #include <vector>
+#include <functional>
 
 #ifndef DIRECTX_TOOLKIT_API
 #ifdef DIRECTX_TOOLKIT_EXPORT
@@ -49,6 +50,12 @@
 #endif
 #endif
 
+namespace se
+{
+    // I can't use a raw function pointer because I want to use a lambda with capture.
+    using DDSAllocatorOverrideFunction = std::function<HRESULT(const D3D12_RESOURCE_DESC&, ID3D12Resource** texture)>;
+    extern DDSAllocatorOverrideFunction g_ddsAllocatorOverrideFunction;
+}
 
 namespace DirectX
 {
